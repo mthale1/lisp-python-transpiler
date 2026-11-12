@@ -1,6 +1,6 @@
 #include "sexpr.h"
 
-int main(){
-    mainLoop();
+int main(){    
+    transpileLoop();
     return 0;
 }

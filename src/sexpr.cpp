@@ -545,7 +545,43 @@ SExpr* eval(SExpr* expr){
     return expr;
 }
 
-// Repeatedly reads and prints S-expressions until EOF (End-of-File).
+string transpileBinary(SExpr* expr, string op){
+    SExpr* left = car(cdr(expr));
+    SExpr* right = car(cdr(cdr(expr)));
+
+    return "(" + transpile(left) + " " + op + " " + transpile(right) + ")";
+}
+
+string transpile(SExpr* expr){
+    if (isAtom(expr)){
+        return expr->atom;
+    }
+
+    SExpr* op = car(expr);
+
+    if (op->atom == "add"){
+        return transpileBinary(expr, "+");
+    }
+
+    if (op->atom == "sub"){
+        return transpileBinary(expr, "-");
+    }
+
+    if (op->atom == "mul"){
+        return transpileBinary(expr, "*");
+    }
+
+    if (op->atom == "div"){
+        return transpileBinary(expr, "//");
+    }
+
+    if (op->atom == "rem"){
+        return transpileBinary(expr, "%");
+    }
+
+    return "";
+}
+
 void mainLoop(){
 
     while (cin)
@@ -565,4 +601,21 @@ void mainLoop(){
 
         }
 
+}
+
+void transpileLoop(){
+
+    while (cin)
+    {
+        skipWhitespace();
+
+        if (cin.peek() == EOF)
+        {
+            break;
+        }
+
+        SExpr* expr = readExpr();
+
+        cout << transpile(expr) << endl;
+    }
 }

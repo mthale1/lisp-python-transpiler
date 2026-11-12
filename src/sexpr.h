@@ -18,6 +18,7 @@ struct SExpr {
 
 extern SExpr* rho;
 extern SExpr* local;
+std::string transpile(SExpr* expr);
 
 void skipWhitespace();
 
@@ -52,6 +53,7 @@ void printExpr(SExpr* expr);
 
 // Program Loop
 void mainLoop();
+void transpileLoop();
 
 
 
