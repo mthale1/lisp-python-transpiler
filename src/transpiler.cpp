@@ -111,8 +111,27 @@ string transpile(SExpr* expr){
         return transpileQuotedList(value);
     }
 
-    return "";
-}
+    if (op->atom == "car"){
+        SExpr* list = car(cdr(expr));
+
+        return transpile(list) + "[0]";
+    }
+
+    if (op->atom == "cdr"){
+        SExpr* list = car(cdr(expr));
+
+        return transpile(list) + "[1:]";
+    }
+
+    if (op->atom == "cons"){
+        SExpr* first = car(cdr(expr));
+        SExpr* rest = car(cdr(cdr(expr)));
+
+        return "([" + transpile(first) + "] + " + transpile(rest) + ")";
+    }
+
+        return "";
+    }
 
 void transpileLoop(){
 

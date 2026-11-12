@@ -144,6 +144,110 @@ void testQuote(){
     check(result == "[[\"a\", \"b\"], \"c\", \"d\"]", "Transpiles a nested quoted list", result, "[[\"a\", \"b\"], \"c\", \"d\"]");
 }
 
+void testCar(){
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "---------------------- TEST CAR ---------------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+
+    string result;
+
+    result = transpileString("(car '(a b c))");
+    check(result == "[\"a\", \"b\", \"c\"][0]",
+          "Transpiles car",
+          result,
+          "[\"a\", \"b\", \"c\"][0]");
+
+    result = transpileString("(car '((a b) c d))");
+    check(result == "[[\"a\", \"b\"], \"c\", \"d\"][0]",
+          "Transpiles car with nested list",
+          result,
+          "[[\"a\", \"b\"], \"c\", \"d\"][0]");
+
+    result = transpileString("(car x)");
+    check(result == "x[0]",
+          "Transpiles car with variable",
+          result,
+          "x[0]");
+}
+
+void testCdr(){
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "---------------------- TEST CDR ---------------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+
+    string result;
+
+    result = transpileString("(cdr '(a b c))");
+    check(result == "[\"a\", \"b\", \"c\"][1:]",
+          "Transpiles cdr",
+          result,
+          "[\"a\", \"b\", \"c\"][1:]");
+
+    result = transpileString("(cdr '((a b) c d))");
+    check(result == "[[\"a\", \"b\"], \"c\", \"d\"][1:]",
+          "Transpiles cdr with nested list",
+          result,
+          "[[\"a\", \"b\"], \"c\", \"d\"][1:]");
+
+    result = transpileString("(cdr x)");
+    check(result == "x[1:]",
+          "Transpiles cdr with variable",
+          result,
+          "x[1:]");
+}
+
+void testCons(){
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "---------------------- TEST CONS --------------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+
+    string result;
+
+    result = transpileString("(cons 'a '(b c))");
+    check(result == "([\"a\"] + [\"b\", \"c\"])",
+        "Transpiles cons",
+        result,
+        "([\"a\"] + [\"b\", \"c\"])");
+
+    result = transpileString("(cons x y)");
+    check(result == "([x] + y)",
+        "Transpiles cons with variables",
+        result,
+        "([x] + y)");
+
+    result = transpileString("(cons (add 2 3) x)");
+    check(result == "([(2 + 3)] + x)",
+        "Transpiles cons with expression",
+        result,
+        "([(2 + 3)] + x)");
+}
+
+void testListOperations(){
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "--------------- TEST LIST OPERATIONS ----------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+
+    string result;
+
+    result = transpileString("(car (cdr '(a b c)))");
+    check(result == "[\"a\", \"b\", \"c\"][1:][0]",
+          "Transpiles car of cdr",
+          result,
+          "[\"a\", \"b\", \"c\"][1:][0]");
+
+    result = transpileString("(cdr (cdr '(a b c d)))");
+    check(result == "[\"a\", \"b\", \"c\", \"d\"][1:][1:]",
+          "Transpiles nested cdr",
+          result,
+          "[\"a\", \"b\", \"c\", \"d\"][1:][1:]");
+
+    result = transpileString("(car (cons 'a '(b c)))");
+    check(result == "([\"a\"] + [\"b\", \"c\"])[0]",
+          "Transpiles car of cons",
+          result,
+          "([\"a\"] + [\"b\", \"c\"])[0]");
+}
+
 void testReport(){
     cout << "\n\n===========================================================" << endl;
     cout << "                        TEST REPORT                        " << endl;
@@ -175,6 +279,10 @@ int main(){
     testConditionals();
     testVariables();
     testQuote();
+    testCar();
+    testCdr();
+    testCons();
+    testListOperations();
 
     testReport();
 

@@ -3,6 +3,8 @@ sexpr
 test_sexpr
 unit_tests
 transpiler
+test
+transpiler_test
 
 # macOS files
 .DS_Store
