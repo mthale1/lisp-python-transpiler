@@ -579,6 +579,28 @@ string transpile(SExpr* expr){
         return transpileBinary(expr, "%");
     }
 
+    if (op->atom == "lt"){
+        return transpileBinary(expr, "<");
+    }
+
+    if (op->atom == "eq?"){
+        return transpileBinary(expr, "==");
+    }
+
+    if (op->atom == "and?"){
+        return transpileBinary(expr, "and");
+    }
+
+    if (op->atom == "or?"){
+        return transpileBinary(expr, "or");
+    }
+
+    if (op->atom == "not?"){
+        SExpr* arg = car(cdr(expr));
+
+        return "(not " + transpile(arg) + ")";
+    }
+
     return "";
 }
 
