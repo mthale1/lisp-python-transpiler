@@ -51,6 +51,9 @@ SExpr* readList();
 void printList(SExpr* expr);
 void printExpr(SExpr* expr);
 
+std::string transpileBinary(SExpr* expr, std::string op);
+std::string transpileQuotedList(SExpr* list);
+
 // Program Loop
 void mainLoop();
 void transpileLoop();

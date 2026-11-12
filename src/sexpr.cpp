@@ -552,6 +552,31 @@ string transpileBinary(SExpr* expr, string op){
     return "(" + transpile(left) + " " + op + " " + transpile(right) + ")";
 }
 
+string transpileQuotedList(SExpr* list){
+    string result = "[";
+
+    while (!isNil(list)){
+        SExpr* value = car(list);
+
+        if (isAtom(value)){
+            result += "\"" + value->atom + "\"";
+        }
+        else {
+            result += transpileQuotedList(value);
+        }
+
+        list = cdr(list);
+
+        if (!isNil(list)){
+            result += ", ";
+        }
+    }
+
+    result += "]";
+
+    return result;
+}
+
 string transpile(SExpr* expr){
     if (isAtom(expr)){
         return expr->atom;
@@ -615,6 +640,16 @@ string transpile(SExpr* expr){
         SExpr* value = car(cdr(cdr(expr)));
 
         return name->atom + " = " + transpile(value);
+    }
+
+    if (op->atom == "quote"){
+        SExpr* value = car(cdr(expr));
+
+        if (isAtom(value)){
+            return "\"" + value->atom + "\"";
+        }
+        
+        return transpileQuotedList(value);
     }
 
     return "";
