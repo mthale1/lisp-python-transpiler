@@ -1,0 +1,166 @@
+a
+()
+'(a b c)
+'hello
+'()
+'((a b) c d)
+
+(car '(a b c))
+(car '((a b) c d))
+(car (cdr '(a b c)))
+
+(cdr '(a b c))
+(cdr '((a b) c d))
+(cdr '(a))
+
+(cons 'a '(b c))
+(cons 'a 'b)
+(cons 'x '())
+(cons '(a b) '(c d))
+(cons '(a b) 'c)
+(cons '() '())
+
+(eval (car '(a b c)))
+(eval (cdr '(a b c)))
+(eval '(car '(x y z)))
+(eval '(cdr '(x y z)))
+
+(car (cons 'hello '(world)))
+(cdr (cons 'a 'b))
+(cons (car '(a b c)) '(x y))
+(cons (cdr '(a b c)) '(x y))
+
+(set a 2)
+a
+(set b 4)
+b
+a
+x
+
+(set a 10)
+a
+b
+
+(set c a)
+c
+
+(nil? ())
+(nil? 'T)
+
+(atom? x)
+(atom? (x))
+
+(list? 'T)
+(list? x)
+(list? (x))
+
+(not? ())
+(not? 'T)
+
+(number? 42)
+(number? -42)
+(number? x)
+(number? 'abc)
+
+(and? 'T 'T)
+(and? 'T ())
+(and? () 'T)
+(and? 'T 'a)
+
+(or? 'T ())
+(or? () 'T)
+(or? () ())
+(or? () 'a)
+
+(eq? 'a 'a)
+(eq? 'a 'b)
+(eq? 'a ())
+(eq? () ())
+(eq? '(a) '(a))
+
+(if 'T 'yes 'no)
+(if () 'yes 'no)
+(if 'a 'yes 'no)
+
+(cond ('T 'first () 'second))
+(cond (() 'first 'T 'second))
+(cond (() 'first () 'second 'T 'default))
+
+(and? () (set x 1))
+x
+
+(or? 'T (set y 1))
+y
+
+(if 'T 'yes (set z 1))
+z
+
+(if () (set w 1) 'no)
+w
+
+(cond ('T 'first 'T (set q 1)))
+q
+
+(add 2 3)
+(add -5 3)
+(add (add 2 3) 4)
+
+(sub 10 3)
+(sub 3 10)
+(sub (add 2 3) 1)
+
+(mul 4 5)
+(mul -3 4)
+(mul (add 2 3) (sub 6 2))
+
+(div 10 2)
+(div 7 2)
+(div (mul 3 4) (add 1 2))
+
+(rem 10 3)
+(rem 8 4)
+(rem (add 5 5) 4)
+
+(lt 2 5)
+(lt 5 2)
+(lt 5 5)
+(lt (sub 5 3) (add 2 3))
+
+(function () 5)
+(function (a) a)
+(function (a b) (add a b))
+
+(set noArgs (function () 5))
+noArgs
+(noArgs)
+
+(set foo (function (a b) (add a b)))
+foo
+(foo 2 3)
+(foo (add 1 2) (mul 2 3))
+
+(set bar (function (x) (foo x 5)))
+bar
+(bar 3)
+
+(set a 100)
+(foo 2 3)
+
+(set n 10)
+(set foo (function (x) (add x n)))
+(foo 5)
+
+(set result (foo 5))
+result
+
+(def sum (a b) (add a b))
+sum
+(sum 4 5)
+
+(def five () 5)
+five
+(five)
+
+(def addFive (x) (sum x 5))
+addFive
+(addFive 7)
