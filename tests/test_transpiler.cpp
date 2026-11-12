@@ -36,6 +36,26 @@ string transpileString(string input){
     return transpile(expr);
 }
 
+void testBasicValues(){
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "----------------- TEST BASIC VALUES -----------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+
+    string result;
+
+    result = transpileString("42");
+    check(result == "42",
+          "Transpiles atom",
+          result,
+          "42");
+
+    result = transpileString("()");
+    check(result == "[]",
+          "Transpiles empty list",
+          result,
+          "[]");
+}
+
 void testArithmetic(){
     cout << "\n-----------------------------------------------------------" << endl;
     cout << "------------------- TEST ARITHMETIC -----------------------" << endl;
@@ -248,6 +268,110 @@ void testListOperations(){
           "([\"a\"] + [\"b\", \"c\"])[0]");
 }
 
+void testNil(){
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "---------------------- TEST NIL ---------------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+
+    string result;
+
+    result = transpileString("(nil? ())");
+    check(result == "([] == [])",
+          "Transpiles nil? with empty list",
+          result,
+          "([] == [])");
+
+    result = transpileString("(nil? x)");
+    check(result == "(x == [])",
+          "Transpiles nil? with variable",
+          result,
+          "(x == [])");
+
+    result = transpileString("(nil? '(a b))");
+    check(result == "([\"a\", \"b\"] == [])",
+          "Transpiles nil? with list",
+          result,
+          "([\"a\", \"b\"] == [])");
+}
+
+void testAtom(){
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "---------------------- TEST ATOM --------------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+
+    string result;
+
+    result = transpileString("(atom? x)");
+    check(result == "(not isinstance(x, list))",
+          "Transpiles atom? with variable",
+          result,
+          "(not isinstance(x, list))");
+
+    result = transpileString("(atom? '(a b))");
+    check(result == "(not isinstance([\"a\", \"b\"], list))",
+          "Transpiles atom? with list",
+          result,
+          "(not isinstance([\"a\", \"b\"], list))");
+
+    result = transpileString("(atom? ())");
+    check(result == "(not isinstance([], list))",
+          "Transpiles atom? with empty list",
+          result,
+          "(not isinstance([], list))");
+}
+
+void testList(){
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "---------------------- TEST LIST --------------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+
+    string result;
+
+    result = transpileString("(list? x)");
+    check(result == "isinstance(x, list)",
+          "Transpiles list? with variable",
+          result,
+          "isinstance(x, list)");
+
+    result = transpileString("(list? '(a b))");
+    check(result == "isinstance([\"a\", \"b\"], list)",
+          "Transpiles list? with list",
+          result,
+          "isinstance([\"a\", \"b\"], list)");
+
+    result = transpileString("(list? ())");
+    check(result == "isinstance([], list)",
+          "Transpiles list? with empty list",
+          result,
+          "isinstance([], list)");
+}
+
+void testNumber(){
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "--------------------- TEST NUMBER -------------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+
+    string result;
+
+    result = transpileString("(number? x)");
+    check(result == "isinstance(x, int)",
+          "Transpiles number? with variable",
+          result,
+          "isinstance(x, int)");
+
+    result = transpileString("(number? 42)");
+    check(result == "isinstance(42, int)",
+          "Transpiles number? with number",
+          result,
+          "isinstance(42, int)");
+
+    result = transpileString("(number? '(a b))");
+    check(result == "isinstance([\"a\", \"b\"], int)",
+          "Transpiles number? with list",
+          result,
+          "isinstance([\"a\", \"b\"], int)");
+}
+
 void testReport(){
     cout << "\n\n===========================================================" << endl;
     cout << "                        TEST REPORT                        " << endl;
@@ -273,6 +397,7 @@ void testReport(){
 }
 
 int main(){
+    testBasicValues();
     testArithmetic();
     testComparisons();
     testBooleans();
@@ -283,6 +408,10 @@ int main(){
     testCdr();
     testCons();
     testListOperations();
+    testNil();
+    testAtom();
+    testList();
+    testNumber();
 
     testReport();
 

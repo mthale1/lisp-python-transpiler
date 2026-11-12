@@ -37,6 +37,10 @@ string transpileQuotedList(SExpr* list){
 }
 
 string transpile(SExpr* expr){
+    if (isNil(expr)){
+        return "[]";
+    }
+
     if (isAtom(expr)){
         return expr->atom;
     }
@@ -128,6 +132,30 @@ string transpile(SExpr* expr){
         SExpr* rest = car(cdr(cdr(expr)));
 
         return "([" + transpile(first) + "] + " + transpile(rest) + ")";
+    }
+
+    if (op->atom == "nil?"){
+        SExpr* value = car(cdr(expr));
+
+        return "(" + transpile(value) + " == [])";
+    }
+
+    if (op->atom == "atom?"){
+        SExpr* value = car(cdr(expr));
+
+        return "(not isinstance(" + transpile(value) + ", list))";
+    }
+
+    if (op->atom == "list?"){
+        SExpr* value = car(cdr(expr));
+
+        return "isinstance(" + transpile(value) + ", list)";
+    }
+
+    if (op->atom == "number?"){
+        SExpr* value = car(cdr(expr));
+
+        return "isinstance(" + transpile(value) + ", int)";
     }
 
         return "";
