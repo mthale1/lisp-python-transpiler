@@ -601,6 +601,22 @@ string transpile(SExpr* expr){
         return "(not " + transpile(arg) + ")";
     }
 
+    if (op->atom == "if"){
+        SExpr* condition = car(cdr(expr));
+        SExpr* trueValue = car(cdr(cdr(expr)));
+        SExpr* falseValue = car(cdr(cdr(cdr(expr))));
+
+        return "(" + transpile(trueValue) + " if " + transpile(condition) +
+            " else " + transpile(falseValue) + ")";
+    }
+
+    if (op->atom == "set"){
+        SExpr* name = car(cdr(expr));
+        SExpr* value = car(cdr(cdr(expr)));
+
+        return name->atom + " = " + transpile(value);
+    }
+
     return "";
 }
 
