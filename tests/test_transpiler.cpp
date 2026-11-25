@@ -302,19 +302,19 @@ void testAnd(){
     string expected;
 
     actual = transpileString("(and? 'a 'b)");
-    expected = "(\"b\" if \"a\" != [] else [])";
+    expected = "(\"b\" if \"a\" != [] and (type(\"a\") != bool or \"a\") else False)";
     check(actual == expected, "Transpiles and? with true values", actual, expected);
 
     actual = transpileString("(and? () 'b)");
-    expected = "(\"b\" if [] != [] else [])";
+    expected = "(\"b\" if [] != [] and (type([]) != bool or []) else False)";
     check(actual == expected, "Transpiles and? with nil", actual, expected);
 
     actual = transpileString("(and? 0 'b)");
-    expected = "(\"b\" if 0 != [] else [])";
+    expected = "(\"b\" if 0 != [] and (type(0) != bool or 0) else False)";
     check(actual == expected, "Transpiles and? with zero", actual, expected);
 
     actual = transpileString("(and? '(a) 5)");
-    expected = "(5 if [\"a\"] != [] else [])";
+    expected = "(5 if [\"a\"] != [] and (type([\"a\"]) != bool or [\"a\"]) else False)";
     check(actual == expected, "Transpiles and? with list", actual, expected);
 }
 
@@ -328,18 +328,19 @@ void testOr(){
     string expected;
 
     actual = transpileString("(or? 'a 'b)");
-    expected = "(\"a\" if \"a\" != [] else \"b\")";
+    expected = "(\"a\" if \"a\" != [] and (type(\"a\") != bool or \"a\") else \"b\")";
     check(actual == expected, "Transpiles or? with true first value", actual, expected);
 
     actual = transpileString("(or? () 'b)");
-    expected = "([] if [] != [] else \"b\")";
+    expected = "([] if [] != [] and (type([]) != bool or []) else \"b\")";
     check(actual == expected, "Transpiles or? with nil first value", actual, expected);
 
     actual = transpileString("(or? 0 'b)");
-    expected = "(0 if 0 != [] else \"b\")";
+    expected = "(0 if 0 != [] and (type(0) != bool or 0) else \"b\")";
     check(actual == expected, "Transpiles or? with zero", actual, expected); 
+
     actual = transpileString("(or? '(a) 5)");
-    expected = "([\"a\"] if [\"a\"] != [] else 5)";
+    expected = "([\"a\"] if [\"a\"] != [] and (type([\"a\"]) != bool or [\"a\"]) else 5)";
     check(actual == expected, "Transpiles or? with list", actual, expected);
 }
 
@@ -353,19 +354,19 @@ void testIf(){
     string expected;
 
     actual = transpileString("(if 'T 'a 'b)");
-    expected = "(\"a\" if \"T\" != [] else \"b\")";
+    expected = "(\"a\" if \"T\" != [] and (type(\"T\") != bool or \"T\") else \"b\")";
     check(actual == expected, "Transpiles if with true condition", actual, expected);
 
     actual = transpileString("(if () 'a 'b)");
-    expected = "(\"a\" if [] != [] else \"b\")";
+    expected = "(\"a\" if [] != [] and (type([]) != bool or []) else \"b\")";
     check(actual == expected, "Transpiles if with nil condition", actual, expected);
 
     actual = transpileString("(if 0 'a 'b)");
-    expected = "(\"a\" if 0 != [] else \"b\")";
+    expected = "(\"a\" if 0 != [] and (type(0) != bool or 0) else \"b\")";
     check(actual == expected, "Transpiles if with zero condition", actual, expected);
 
     actual = transpileString("(if '(a) 1 2)");
-    expected = "(1 if [\"a\"] != [] else 2)";
+    expected = "(1 if [\"a\"] != [] and (type([\"a\"]) != bool or [\"a\"]) else 2)";
     check(actual == expected, "Transpiles if with list condition", actual, expected);
 }
 
@@ -379,24 +380,28 @@ void testCond(){
     string expected;
 
     actual = transpileString("(cond ('T 'yes 'T 'no))");
-    expected = "(\"yes\" if \"T\" != [] else (\"no\" if \"T\" != [] else []))";
+    expected = "(\"yes\" if \"T\" != [] and (type(\"T\") != bool or \"T\") else (\"no\" if \"T\" != [] and (type(\"T\") != bool or \"T\") else False))";
     check(actual == expected, "Transpiles cond with true first condition", actual, expected);
 
     actual = transpileString("(cond (() 'first 'T 'second))");
-    expected = "(\"first\" if [] != [] else (\"second\" if \"T\" != [] else []))";
+    expected = "(\"first\" if [] != [] and (type([]) != bool or []) else (\"second\" if \"T\" != [] and (type(\"T\") != bool or \"T\") else False))";
     check(actual == expected, "Transpiles cond with nil first condition", actual, expected);
 
     actual = transpileString("(cond ((lt x 0) 'negative (eq? x 0) 'zero 'T 'positive))");
-    expected = "(\"negative\" if (True if x < 0 else []) != [] else (\"zero\" if (True if not isinstance(x, list) and not isinstance(0, list) and x == 0 else []) != [] else (\"positive\" if \"T\" != [] else [])))";
+    expected = "(\"negative\" if (x < 0) != [] and (type((x < 0)) != bool or (x < 0)) else (\"zero\" if (not isinstance(x, list) and not isinstance(0, list) and x == 0) != [] and (type((not isinstance(x, list) and not isinstance(0, list) and x == 0)) != bool or (not isinstance(x, list) and not isinstance(0, list) and x == 0)) else (\"positive\" if \"T\" != [] and (type(\"T\") != bool or \"T\") else False)))";
     check(actual == expected, "Transpiles cond with multiple conditions", actual, expected);
 
     actual = transpileString("(cond ((number? x) 'number (atom? x) 'atom 'T 'other))");
-    expected = "(\"number\" if (True if isinstance(x, int) else []) != [] else (\"atom\" if (True if not isinstance(x, list) else []) != [] else (\"other\" if \"T\" != [] else [])))";
+    expected = "(\"number\" if (type(x) == int) != [] and (type((type(x) == int)) != bool or (type(x) == int)) else (\"atom\" if (not isinstance(x, list)) != [] and (type((not isinstance(x, list))) != bool or (not isinstance(x, list))) else (\"other\" if \"T\" != [] and (type(\"T\") != bool or \"T\") else False)))";
     check(actual == expected, "Transpiles cond with predicates", actual, expected);
 
     actual = transpileString("(cond (() 'no))");
-    expected = "(\"no\" if [] != [] else [])";
+    expected = "(\"no\" if [] != [] and (type([]) != bool or []) else False)";
     check(actual == expected, "Transpiles cond with no true condition", actual, expected);
+
+    actual = transpileString("(cond (0 'zero 'T 'other))");
+    expected = "(\"zero\" if 0 != [] and (type(0) != bool or 0) else (\"other\" if \"T\" != [] and (type(\"T\") != bool or \"T\") else False))";
+    check(actual == expected, "Transpiles cond with zero as true condition", actual, expected);
 }
 
 void testNil(){
@@ -409,19 +414,19 @@ void testNil(){
     string expected;
 
     actual = transpileString("(nil? ())");
-    expected = "(True if [] == [] else [])";
+    expected = "([] == [])";
     check(actual == expected, "Transpiles nil? with nil", actual, expected);
 
     actual = transpileString("(nil? 'a)");
-    expected = "(True if \"a\" == [] else [])";
+    expected = "(\"a\" == [])";
     check(actual == expected, "Transpiles nil? with atom", actual, expected);
 
     actual = transpileString("(nil? 0)");
-    expected = "(True if 0 == [] else [])";
+    expected = "(0 == [])";
     check(actual == expected, "Transpiles nil? with zero", actual, expected);
 
     actual = transpileString("(nil? '(a b))");
-    expected = "(True if [\"a\", \"b\"] == [] else [])";
+    expected = "([\"a\", \"b\"] == [])";
     check(actual == expected, "Transpiles nil? with list", actual, expected);
 }
 
@@ -435,15 +440,15 @@ void testAtom(){
     string expected;
 
     actual = transpileString("(atom? 'a)");
-    expected = "(True if not isinstance(\"a\", list) else [])";
+    expected = "(not isinstance(\"a\", list))";
     check(actual == expected, "Transpiles atom? with atom", actual, expected);
 
     actual = transpileString("(atom? 42)");
-    expected = "(True if not isinstance(42, list) else [])";
+    expected = "(not isinstance(42, list))";
     check(actual == expected, "Transpiles atom? with number", actual, expected);
 
     actual = transpileString("(atom? '(a b))");
-    expected = "(True if not isinstance([\"a\", \"b\"], list) else [])";
+    expected = "(not isinstance([\"a\", \"b\"], list))";
     check(actual == expected, "Transpiles atom? with list", actual, expected);
 }
 
@@ -457,19 +462,19 @@ void testList(){
     string expected;
 
     actual = transpileString("(list? '(a b))");
-    expected = "(True if isinstance([\"a\", \"b\"], list) else [])";
+    expected = "(isinstance([\"a\", \"b\"], list))";
     check(actual == expected, "Transpiles list? with list", actual, expected);
 
     actual = transpileString("(list? 'a)");
-    expected = "(True if isinstance(\"a\", list) else [])";
+    expected = "(isinstance(\"a\", list))";
     check(actual == expected, "Transpiles list? with atom", actual, expected);
 
     actual = transpileString("(list? 42)");
-    expected = "(True if isinstance(42, list) else [])";
+    expected = "(isinstance(42, list))";
     check(actual == expected, "Transpiles list? with number", actual, expected);
 
     actual = transpileString("(list? x)");
-    expected = "(True if isinstance(x, list) else [])";
+    expected = "(isinstance(x, list))";
     check(actual == expected, "Transpiles list? with variable", actual, expected);
 }
 
@@ -480,31 +485,35 @@ void testNumber(){
     cout << "-----------------------------------------------------------" << endl;
 
     string actual;
-    string expected;    
+    string expected;
 
     actual = transpileString("(number? 42)");
-    expected = "(True if isinstance(42, int) else [])";
+    expected = "(type(42) == int)";
     check(actual == expected, "Transpiles number? with number", actual, expected);
 
     actual = transpileString("(number? '42)");
-    expected = "(True if isinstance(42, int) else [])";
+    expected = "(type(42) == int)";
     check(actual == expected, "Transpiles number? with quoted number", actual, expected);
 
     actual = transpileString("(number? '-42)");
-    expected = "(True if isinstance(-42, int) else [])";
+    expected = "(type(-42) == int)";
     check(actual == expected, "Transpiles number? with negative number", actual, expected);
 
     actual = transpileString("(number? 'a)");
-    expected = "(True if isinstance(\"a\", int) else [])";
+    expected = "(type(\"a\") == int)";
     check(actual == expected, "Transpiles number? with atom", actual, expected);
 
     actual = transpileString("(number? '(1 2))");
-    expected = "(True if isinstance([1, 2], int) else [])";
+    expected = "(type([1, 2]) == int)";
     check(actual == expected, "Transpiles number? with list", actual, expected);
 
     actual = transpileString("(number? x)");
-    expected = "(True if isinstance(x, int) else [])";
+    expected = "(type(x) == int)";
     check(actual == expected, "Transpiles number? with variable", actual, expected);
+
+    actual = transpileString("(number? (lt 1 2))");
+    expected = "(type((1 < 2)) == int)";
+    check(actual == expected, "Transpiles number? with true value", actual, expected);
 }
 
 void testNot(){
@@ -517,19 +526,19 @@ void testNot(){
     string expected;
 
     actual = transpileString("(not? ())");
-    expected = "(True if [] == [] else [])";
+    expected = "([] == [] or [] == False)";
     check(actual == expected, "Transpiles not? with nil", actual, expected);
 
     actual = transpileString("(not? 'a)");
-    expected = "(True if \"a\" == [] else [])";
+    expected = "(\"a\" == [] or \"a\" == False)";
     check(actual == expected, "Transpiles not? with atom", actual, expected);
 
     actual = transpileString("(not? 0)");
-    expected = "(True if 0 == [] else [])";
+    expected = "(0 == [] or 0 == False)";
     check(actual == expected, "Transpiles not? with zero", actual, expected);
 
     actual = transpileString("(not? '(a))");
-    expected = "(True if [\"a\"] == [] else [])";
+    expected = "([\"a\"] == [] or [\"a\"] == False)";
     check(actual == expected, "Transpiles not? with list", actual, expected);
 }
 
@@ -543,27 +552,27 @@ void testEq(){
     string expected;
 
     actual = transpileString("(eq? 'a 'a)");
-    expected = "(True if not isinstance(\"a\", list) and not isinstance(\"a\", list) and \"a\" == \"a\" else [])";
+    expected = "(not isinstance(\"a\", list) and not isinstance(\"a\", list) and \"a\" == \"a\")";
     check(actual == expected, "Transpiles eq? with equal atoms", actual, expected);
 
     actual = transpileString("(eq? 'a 'b)");
-    expected = "(True if not isinstance(\"a\", list) and not isinstance(\"b\", list) and \"a\" == \"b\" else [])";
+    expected = "(not isinstance(\"a\", list) and not isinstance(\"b\", list) and \"a\" == \"b\")";
     check(actual == expected, "Transpiles eq? with different atoms", actual, expected);
 
     actual = transpileString("(eq? 42 42)");
-    expected = "(True if not isinstance(42, list) and not isinstance(42, list) and 42 == 42 else [])";
+    expected = "(not isinstance(42, list) and not isinstance(42, list) and 42 == 42)";
     check(actual == expected, "Transpiles eq? with numbers", actual, expected);
 
     actual = transpileString("(eq? '42 42)");
-    expected = "(True if not isinstance(42, list) and not isinstance(42, list) and 42 == 42 else [])";
+    expected = "(not isinstance(42, list) and not isinstance(42, list) and 42 == 42)";
     check(actual == expected, "Transpiles eq? with quoted number", actual, expected);
 
     actual = transpileString("(eq? '(a) '(a))");
-    expected = "(True if not isinstance([\"a\"], list) and not isinstance([\"a\"], list) and [\"a\"] == [\"a\"] else [])";
+    expected = "(not isinstance([\"a\"], list) and not isinstance([\"a\"], list) and [\"a\"] == [\"a\"])";
     check(actual == expected, "Transpiles eq? with lists", actual, expected);
 
     actual = transpileString("(eq? () ())");
-    expected = "(True if not isinstance([], list) and not isinstance([], list) and [] == [] else [])";
+    expected = "(not isinstance([], list) and not isinstance([], list) and [] == [])";
     check(actual == expected, "Transpiles eq? with nil", actual, expected);
 }
 
@@ -577,19 +586,19 @@ void testLt(){
     string expected;
 
     actual = transpileString("(lt 2 5)");
-    expected = "(True if 2 < 5 else [])";
+    expected = "(2 < 5)";
     check(actual == expected, "Transpiles lt with smaller first value", actual, expected);
 
     actual = transpileString("(lt 5 2)");
-    expected = "(True if 5 < 2 else [])";
+    expected = "(5 < 2)";
     check(actual == expected, "Transpiles lt with larger first value", actual, expected);
 
     actual = transpileString("(lt -5 2)");
-    expected = "(True if -5 < 2 else [])";
+    expected = "(-5 < 2)";
     check(actual == expected, "Transpiles lt with negative number", actual, expected);
 
     actual = transpileString("(lt (add 1 2) 5)");
-    expected = "(True if (1 + 2) < 5 else [])";
+    expected = "((1 + 2) < 5)";
     check(actual == expected, "Transpiles lt with expression", actual, expected);
 }
 
@@ -611,7 +620,7 @@ void testDef(){
     check(actual == expected, "Transpiles function with multiple parameters", actual, expected);
 
     actual = transpileString("(def isZero (x) (eq? x 0))");
-    expected = "def isZero(x):\n    return (True if not isinstance(x, list) and not isinstance(0, list) and x == 0 else [])";
+    expected = "def isZero(x):\n    return (not isinstance(x, list) and not isinstance(0, list) and x == 0)";
     check(actual == expected, "Transpiles function with predicate body", actual, expected);
 }
 
@@ -661,6 +670,32 @@ void testFunction(){
     actual = transpileString("(set increment (function (x) (add x 1)))");
     expected = "increment = lambda x: (x + 1)";
     check(actual == expected, "Transpiles function assigned with set", actual, expected);
+
+    actual = transpileString("((function (x) (add x 1)) 5)");
+    expected = "(lambda x: (x + 1))(5)";
+    check(actual == expected, "direct anonymous function call", actual, expected);
+}
+void testPrint(){
+    currentTestFunction = "testPrint";
+    cout << "\n-----------------------------------------------------------" << endl;
+    cout << "------------------------ TEST PRINT -----------------------" << endl;
+    cout << "-----------------------------------------------------------" << endl; 
+    
+    string actual;
+    string expected;
+
+    actual = transpileString("(print (square 5))");
+    expected = "print(square(5))";
+    check(actual == expected, "Transpiles print with function call", actual, expected);
+
+    actual = transpileString("(print (add 10 20))");
+    expected = "print((10 + 20))";
+    check(actual == expected, "Transpiles print with expression", actual, expected);
+
+    actual = transpileString("(print 'hello)");
+    expected = "print(\"hello\")";
+    check(actual == expected, "Transpiles print with quoted symbol", actual, expected);
+
 }
 
 void testTranspileFile(){
@@ -688,7 +723,7 @@ void testTranspileFile(){
         "def square(x):\n"
         "    return (x * x)\n\n"
         "x = 5\n\n"
-        "print(square(x))\n\n";
+        "square(x)\n\n";
 
     check(actual == expected, "Transpiles Lisp file to Python file", actual, expected);
 
@@ -707,12 +742,12 @@ void testTranspileFile(){
     );
     output2.close();
 
-    string expected2 =
-        "print((2 + 3))\n\n"
-        "print((\"yes\" if \"T\" != [] else \"no\"))\n\n"
-        "print((True if isinstance(5, int) else []))\n\n";
+    expected =
+            "(2 + 3)\n\n"
+            "(\"yes\" if \"T\" != [] and (type(\"T\") != bool or \"T\") else \"no\")\n\n"
+            "(type(5) == int)\n\n";
 
-    check(actual2 == expected2, "Transpiles multiple expressions in file", actual2, expected2);
+    check(actual2 == expected, "Transpiles multiple expressions in file", actual2, expected);
 
     ofstream input3("test_statements.lisp");
     input3 << "(set x 5)" << endl;
@@ -729,13 +764,13 @@ void testTranspileFile(){
     );
     output3.close();
 
-    string expected3 =
+    expected =
         "x = 5\n\n"
         "y = 10\n\n"
         "def addTwo(a, b):\n"
         "    return (a + b)\n\n";
 
-    check(actual3 == expected3, "Does not print definitions and assignments", actual3, expected3);
+    check(actual3 == expected, "Transpiles definitions and assignments", actual3, expected);
 
     ofstream basicInput("test_basic_file.lisp");
     basicInput << "42" << endl;
@@ -752,9 +787,9 @@ void testTranspileFile(){
     basicOutput.close();
 
     expected =
-        "print(42)\n"
+        "42\n"
         "\n"
-        "print([])\n"
+        "[]\n"
         "\n";
 
     check(actual == expected, "Transpiles basic values from file", actual, expected);
@@ -766,8 +801,6 @@ void testTranspileFile(){
 
     check(actual == expected, "Returns false when input file does not exist", actual, expected);
 
-    remove("test_program.lisp");
-    remove("test_program.py");
     remove("test_program.lisp");
     remove("test_program.py");
     remove("test_expressions.lisp");
@@ -819,8 +852,8 @@ void testFullProgram(){
     ofstream input("test_full.lisp");
     input << "(def square (x) (mul x x))" << endl;
     input << "(set x 5)" << endl;
-    input << "(square x)" << endl;
-    input << "(add (square x) 10)" << endl;
+    input << "(print (square x))" << endl;
+    input << "(print (add (square x) 10))" << endl;
     input.close();
 
     transpileFile("test_full.lisp", "test_full.py");
@@ -901,6 +934,7 @@ int main(){
     testDef();
     testFunctionCall();
     testFunction();
+    testPrint();
 
     testTranspileFile();
     testExecutePythonFile();

@@ -1,11 +1,22 @@
 #include "transpiler.h"
 
 #include <iostream>
+#include <fstream>
 #include <string>
 
 using namespace std;
 
 int main(int argc, char* argv[]){
+    if (argc == 1){
+        cout << "Lisp to Python Transpiler" << endl;
+        cout << "Enter Lisp expressions (type quit to exit):" << endl;
+        cout << endl;
+
+        transpileLoop();
+
+        return 0;
+    }
+
     if (argc != 2){
         cout << "Usage: ./transpiler <lisp file>" << endl;
         return 1;
@@ -27,17 +38,17 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    cout << "Created " << outputFile << endl;
+    cout << "Created '" << outputFile << "'." <<endl;
 
     string resultFile = outputFile.substr(0, outputFile.find_last_of('.')) + ".out";
 
     int result = executePythonFile(outputFile, resultFile);
 
     if (result == 0){
-        cout << "Executed " << outputFile << " successfully. See " << resultFile << " for output." << endl;
+        cout << "Executed '" << outputFile << "' successfully. See '" << resultFile << "' for output." << endl;
     }
     else {
-        cout << "Error executing " << outputFile << ". See " << resultFile << " for error." << endl;
+        cout << "Error executing '" << outputFile << "'. See '" << resultFile << "' for error." << endl;
     }
 
     return 0;

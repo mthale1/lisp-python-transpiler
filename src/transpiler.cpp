@@ -36,19 +36,7 @@ bool transpileFile(string inputFile, string outputFile){
         SExpr* expr = readExpr();
         string translated = transpile(expr);
 
-        if (isAtom(expr) || isNil(expr)){
-            output << "print(" << translated << ")" << endl << endl;
-        }
-        else if (isAtom(car(expr))){
-            string op = car(expr)->atom;
-
-            if (op == "set" || op == "def"){
-                output << translated << endl << endl;
-            }
-            else {
-                output << "print(" << translated << ")" << endl << endl;
-            }
-        }
+        output << translated << endl << endl;
     }
 
     cin.rdbuf(originalCin);
@@ -100,11 +88,16 @@ string transpileCond(SExpr* clauses){
 
     if (isNil(rest)){
         return "(" + transpile(result) + " if " +
-            transpile(condition) + " != [] else [])";
+            transpile(condition) + " != [] and (type(" +
+            transpile(condition) + ") != bool or " +
+            transpile(condition) + ") else False)";
     }
 
-    return "(" + transpile(result) + " if " + transpile(condition) +
-        " != [] else " + transpileCond(rest) + ")";
+    return "(" + transpile(result) + " if " +
+        transpile(condition) + " != [] and (type(" +
+        transpile(condition) + ") != bool or " +
+        transpile(condition) + ") else " +
+        transpileCond(rest) + ")";
 }
 
 string transpileParameters(SExpr* params){
@@ -125,6 +118,7 @@ string transpileParameters(SExpr* params){
 }
 
 string transpile(SExpr* expr){
+
     if (isNil(expr)){
         return "[]";
     }
@@ -134,6 +128,24 @@ string transpile(SExpr* expr){
     }
 
     SExpr* op = car(expr);
+
+    if (!isAtom(op)){
+        string result = "(" + transpile(op) + ")(";
+        SExpr* args = cdr(expr);
+
+        while (!isNil(args)){
+            result += transpile(car(args));
+            args = cdr(args);
+
+            if (!isNil(args)){
+                result += ", ";
+            }
+        }
+
+        result += ")";
+
+        return result;
+    }
 
     if (op->atom == "add"){
         return transpileBinary(expr, "+");
@@ -159,8 +171,8 @@ string transpile(SExpr* expr){
         SExpr* left = car(cdr(expr));
         SExpr* right = car(cdr(cdr(expr)));
 
-        return "(True if " + transpile(left) + " < " +
-            transpile(right) + " else [])";
+        return "(" + transpile(left) + " < " +
+            transpile(right) + ")";
     }
 
     if (op->atom == "eq?"){
@@ -170,31 +182,32 @@ string transpile(SExpr* expr){
         string leftValue = transpile(left);
         string rightValue = transpile(right);
 
-        return "(True if not isinstance(" + leftValue + ", list) and " +
+        return "(not isinstance(" + leftValue + ", list) and " +
             "not isinstance(" + rightValue + ", list) and " +
-            leftValue + " == " + rightValue + " else [])";
+            leftValue + " == " + rightValue + ")";
     }
 
     if (op->atom == "and?"){
         SExpr* left = car(cdr(expr));
         SExpr* right = car(cdr(cdr(expr)));
 
-        return "(" + transpile(right) + " if " + transpile(left) +
-            " != [] else [])";
+    return "(" + transpile(right) + " if " + transpile(left) +
+        " != [] and (type(" + transpile(left) + ") != bool or " + transpile(left) + ") else False)";
     }
 
     if (op->atom == "or?"){
         SExpr* left = car(cdr(expr));
         SExpr* right = car(cdr(cdr(expr)));
 
-        return "(" + transpile(left) + " if " + transpile(left) +
-            " != [] else " + transpile(right) + ")";
+    return "(" + transpile(left) + " if " + transpile(left) +
+        " != [] and (type(" + transpile(left) + ") != bool or " + transpile(left) + ") else " + transpile(right) + ")";
     }
 
     if (op->atom == "not?"){
         SExpr* arg = car(cdr(expr));
 
-        return "(True if " + transpile(arg) + " == [] else [])";
+        return "(" + transpile(arg) + " == [] or " +
+            transpile(arg) + " == False)";
     }
 
     if (op->atom == "if"){
@@ -202,8 +215,8 @@ string transpile(SExpr* expr){
         SExpr* trueValue = car(cdr(cdr(expr)));
         SExpr* falseValue = car(cdr(cdr(cdr(expr))));
 
-        return "(" + transpile(trueValue) + " if " + transpile(condition) +
-            " != [] else " + transpile(falseValue) + ")";
+    return "(" + transpile(trueValue) + " if " + transpile(condition) + " != [] and " +
+        "(type(" + transpile(condition) + ") != bool or " + transpile(condition) + ") else " + transpile(falseValue) + ")";
     }
 
     if (op->atom == "set"){
@@ -249,28 +262,25 @@ string transpile(SExpr* expr){
     if (op->atom == "nil?"){
         SExpr* value = car(cdr(expr));
 
-        return "(True if " + transpile(value) + " == [] else [])";
+        return "(" + transpile(value) + " == [])";
     }
 
     if (op->atom == "atom?"){
         SExpr* value = car(cdr(expr));
 
-        return "(True if not isinstance(" + transpile(value) +
-            ", list) else [])";
+        return "(not isinstance(" + transpile(value) + ", list))";
     }
 
     if (op->atom == "list?"){
         SExpr* value = car(cdr(expr));
 
-        return "(True if isinstance(" + transpile(value) +
-            ", list) else [])";
+        return "(isinstance(" + transpile(value) + ", list))";
     }
 
     if (op->atom == "number?"){
         SExpr* value = car(cdr(expr));
 
-        return "(True if isinstance(" + transpile(value) +
-            ", int) else [])";
+        return "(type(" + transpile(value) + ") == int)";
     }
 
     if (op->atom == "cond"){
@@ -279,13 +289,18 @@ string transpile(SExpr* expr){
         return transpileCond(clauses);
     }
 
+    if (op->atom == "print"){
+        SExpr* value = car(cdr(expr));
+
+        return "print(" + transpile(value) + ")";
+    }
+
     if (op->atom == "def"){
         SExpr* name = car(cdr(expr));
         SExpr* params = car(cdr(cdr(expr)));
         SExpr* body = car(cdr(cdr(cdr(expr))));
 
-        return "def " + name->atom + "(" + transpileParameters(params) +
-            "):\n    return " + transpile(body);
+        return "def " + name->atom + "(" + transpileParameters(params) + "):\n    return " + transpile(body);
     }
 
     if (op->atom == "function"){
@@ -314,18 +329,72 @@ string transpile(SExpr* expr){
 }
 
 void transpileLoop(){
-
-    while (cin)
-    {
+    while (cin){
         skipWhitespace();
 
-        if (cin.peek() == EOF)
-        {
+        if (cin.peek() == EOF){
             break;
         }
 
         SExpr* expr = readExpr();
 
-        cout << transpile(expr) << endl;
+        if (isAtom(expr) && expr->atom == "quit"){
+            break;
+        }
+
+        string translated = transpile(expr);
+
+        cout << "Python: ";
+
+        for (int i = 0; i < translated.length(); i++){
+            cout << translated[i];
+
+            if (translated[i] == '\n'){
+                cout << "        ";
+            }
+        }
+
+        cout << endl;
+
+        cout << "Execute? (y/n): ";
+
+        string choice;
+        cin >> choice;
+
+        if (choice == "y" || choice == "Y"){
+            ofstream output("interactive.py");
+
+            if (!isAtom(expr) && !isNil(expr) && isAtom(car(expr))){
+                string op = car(expr)->atom;
+
+                if (op == "set" || op == "def"){
+                    output << translated << endl;
+                }
+                else {
+                    output << "print(" << translated << ")" << endl;
+                }
+            }
+            else {
+                output << "print(" << translated << ")" << endl;
+            }
+
+            output.close();
+
+            int result = executePythonFile("interactive.py", "interactive.out");
+
+            if (result == 0){
+                ifstream input("interactive.out");
+                string line;
+
+                while (getline(input, line)){
+                    cout << line << endl;
+                }
+
+                input.close();
+            }
+            else {
+                cout << "Error executing expression. See interactive.out for error." << endl;
+            }
+        }
     }
 }

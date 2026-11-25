@@ -1,0 +1,401 @@
+
+-----------------------------------------------------------
+------------------ TEST BASIC VALUES ----------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles number | Actual: 42 | Expected: 42
+
+✅ PASS 	Transpiles symbol | Actual: x | Expected: x
+
+✅ PASS 	Transpiles nil | Actual: [] | Expected: []
+
+-----------------------------------------------------------
+------------------- TEST ARITHMETIC -----------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles add | Actual: (2 + 3) | Expected: (2 + 3)
+
+✅ PASS 	Transpiles sub | Actual: (10 - 4) | Expected: (10 - 4)
+
+✅ PASS 	Transpiles mul | Actual: (3 * 5) | Expected: (3 * 5)
+
+✅ PASS 	Transpiles div | Actual: (10 // 3) | Expected: (10 // 3)
+
+✅ PASS 	Transpiles rem | Actual: (10 % 3) | Expected: (10 % 3)
+
+✅ PASS 	Transpiles nested arithmetic | Actual: ((2 + 3) * (10 - 4)) | Expected: ((2 + 3) * (10 - 4))
+
+-----------------------------------------------------------
+------------------- TEST VARIABLES ------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles set | Actual: x = 10 | Expected: x = 10
+
+✅ PASS 	Transpiles set with an expression | Actual: x = (2 + 3) | Expected: x = (2 + 3)
+
+✅ PASS 	Transpiles set with nested expressions | Actual: y = ((2 + 3) * 4) | Expected: y = ((2 + 3) * 4)
+
+-----------------------------------------------------------
+--------------------- TEST QUOTE --------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles quoted atom | Actual: "a" | Expected: "a"
+
+✅ PASS 	Transpiles quote | Actual: "a" | Expected: "a"
+
+✅ PASS 	Transpiles quoted number | Actual: 42 | Expected: 42
+
+✅ PASS 	Transpiles quoted list | Actual: ["a", "b", "c"] | Expected: ["a", "b", "c"]
+
+✅ PASS 	Transpiles nested quoted list | Actual: [["a", "b"], "c"] | Expected: [["a", "b"], "c"]
+
+✅ PASS 	Transpiles quoted T | Actual: "T" | Expected: "T"
+
+✅ PASS 	Transpiles quoted list with numbers | Actual: ["a", 42, "b", -7] | Expected: ["a", 42, "b", -7]
+
+-----------------------------------------------------------
+---------------------- TEST CAR ---------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles car with quoted list | Actual: ["a", "b", "c"][0] | Expected: ["a", "b", "c"][0]
+
+✅ PASS 	Transpiles car with nested list | Actual: [["a", "b"], "c"][0] | Expected: [["a", "b"], "c"][0]
+
+✅ PASS 	Transpiles car with variable | Actual: x[0] | Expected: x[0]
+
+-----------------------------------------------------------
+---------------------- TEST CDR ---------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles cdr with quoted list | Actual: ["a", "b", "c"][1:] | Expected: ["a", "b", "c"][1:]
+
+✅ PASS 	Transpiles cdr with one element | Actual: ["a"][1:] | Expected: ["a"][1:]
+
+✅ PASS 	Transpiles cdr with variable | Actual: x[1:] | Expected: x[1:]
+
+-----------------------------------------------------------
+---------------------- TEST CONS --------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles cons with empty list | Actual: ["a"] + [] | Expected: ["a"] + []
+
+✅ PASS 	Transpiles cons with quoted list | Actual: ["a"] + ["b", "c"] | Expected: ["a"] + ["b", "c"]
+
+✅ PASS 	Transpiles cons with numbers | Actual: [1] + [2, 3] | Expected: [1] + [2, 3]
+
+✅ PASS 	Transpiles cons with variable | Actual: ["a"] + x | Expected: ["a"] + x
+
+-----------------------------------------------------------
+---------------------- TEST NIL? --------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles nil? with nil | Actual: ([] == []) | Expected: ([] == [])
+
+✅ PASS 	Transpiles nil? with atom | Actual: ("a" == []) | Expected: ("a" == [])
+
+✅ PASS 	Transpiles nil? with zero | Actual: (0 == []) | Expected: (0 == [])
+
+✅ PASS 	Transpiles nil? with list | Actual: (["a", "b"] == []) | Expected: (["a", "b"] == [])
+
+-----------------------------------------------------------
+---------------------- TEST ATOM? -------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles atom? with atom | Actual: (not isinstance("a", list)) | Expected: (not isinstance("a", list))
+
+✅ PASS 	Transpiles atom? with number | Actual: (not isinstance(42, list)) | Expected: (not isinstance(42, list))
+
+✅ PASS 	Transpiles atom? with list | Actual: (not isinstance(["a", "b"], list)) | Expected: (not isinstance(["a", "b"], list))
+
+-----------------------------------------------------------
+---------------------- TEST LIST? -------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles list? with list | Actual: (isinstance(["a", "b"], list)) | Expected: (isinstance(["a", "b"], list))
+
+✅ PASS 	Transpiles list? with atom | Actual: (isinstance("a", list)) | Expected: (isinstance("a", list))
+
+✅ PASS 	Transpiles list? with number | Actual: (isinstance(42, list)) | Expected: (isinstance(42, list))
+
+✅ PASS 	Transpiles list? with variable | Actual: (isinstance(x, list)) | Expected: (isinstance(x, list))
+
+-----------------------------------------------------------
+--------------------- TEST NUMBER? ------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles number? with number | Actual: (type(42) == int) | Expected: (type(42) == int)
+
+✅ PASS 	Transpiles number? with quoted number | Actual: (type(42) == int) | Expected: (type(42) == int)
+
+✅ PASS 	Transpiles number? with negative number | Actual: (type(-42) == int) | Expected: (type(-42) == int)
+
+✅ PASS 	Transpiles number? with atom | Actual: (type("a") == int) | Expected: (type("a") == int)
+
+✅ PASS 	Transpiles number? with list | Actual: (type([1, 2]) == int) | Expected: (type([1, 2]) == int)
+
+✅ PASS 	Transpiles number? with variable | Actual: (type(x) == int) | Expected: (type(x) == int)
+
+✅ PASS 	Transpiles number? with true value | Actual: (type((1 < 2)) == int) | Expected: (type((1 < 2)) == int)
+
+-----------------------------------------------------------
+----------------------- TEST NOT? -------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles not? with nil | Actual: ([] == [] or [] == False) | Expected: ([] == [] or [] == False)
+
+✅ PASS 	Transpiles not? with atom | Actual: ("a" == [] or "a" == False) | Expected: ("a" == [] or "a" == False)
+
+✅ PASS 	Transpiles not? with zero | Actual: (0 == [] or 0 == False) | Expected: (0 == [] or 0 == False)
+
+✅ PASS 	Transpiles not? with list | Actual: (["a"] == [] or ["a"] == False) | Expected: (["a"] == [] or ["a"] == False)
+
+-----------------------------------------------------------
+---------------------- TEST AND? --------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles and? with true values | Actual: ("b" if "a" != [] and (type("a") != bool or "a") else False) | Expected: ("b" if "a" != [] and (type("a") != bool or "a") else False)
+
+✅ PASS 	Transpiles and? with nil | Actual: ("b" if [] != [] and (type([]) != bool or []) else False) | Expected: ("b" if [] != [] and (type([]) != bool or []) else False)
+
+✅ PASS 	Transpiles and? with zero | Actual: ("b" if 0 != [] and (type(0) != bool or 0) else False) | Expected: ("b" if 0 != [] and (type(0) != bool or 0) else False)
+
+✅ PASS 	Transpiles and? with list | Actual: (5 if ["a"] != [] and (type(["a"]) != bool or ["a"]) else False) | Expected: (5 if ["a"] != [] and (type(["a"]) != bool or ["a"]) else False)
+
+-----------------------------------------------------------
+----------------------- TEST OR? --------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles or? with true first value | Actual: ("a" if "a" != [] and (type("a") != bool or "a") else "b") | Expected: ("a" if "a" != [] and (type("a") != bool or "a") else "b")
+
+✅ PASS 	Transpiles or? with nil first value | Actual: ([] if [] != [] and (type([]) != bool or []) else "b") | Expected: ([] if [] != [] and (type([]) != bool or []) else "b")
+
+✅ PASS 	Transpiles or? with zero | Actual: (0 if 0 != [] and (type(0) != bool or 0) else "b") | Expected: (0 if 0 != [] and (type(0) != bool or 0) else "b")
+
+✅ PASS 	Transpiles or? with list | Actual: (["a"] if ["a"] != [] and (type(["a"]) != bool or ["a"]) else 5) | Expected: (["a"] if ["a"] != [] and (type(["a"]) != bool or ["a"]) else 5)
+
+-----------------------------------------------------------
+----------------------- TEST EQ? --------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles eq? with equal atoms | Actual: (not isinstance("a", list) and not isinstance("a", list) and "a" == "a") | Expected: (not isinstance("a", list) and not isinstance("a", list) and "a" == "a")
+
+✅ PASS 	Transpiles eq? with different atoms | Actual: (not isinstance("a", list) and not isinstance("b", list) and "a" == "b") | Expected: (not isinstance("a", list) and not isinstance("b", list) and "a" == "b")
+
+✅ PASS 	Transpiles eq? with numbers | Actual: (not isinstance(42, list) and not isinstance(42, list) and 42 == 42) | Expected: (not isinstance(42, list) and not isinstance(42, list) and 42 == 42)
+
+✅ PASS 	Transpiles eq? with quoted number | Actual: (not isinstance(42, list) and not isinstance(42, list) and 42 == 42) | Expected: (not isinstance(42, list) and not isinstance(42, list) and 42 == 42)
+
+✅ PASS 	Transpiles eq? with lists | Actual: (not isinstance(["a"], list) and not isinstance(["a"], list) and ["a"] == ["a"]) | Expected: (not isinstance(["a"], list) and not isinstance(["a"], list) and ["a"] == ["a"])
+
+✅ PASS 	Transpiles eq? with nil | Actual: (not isinstance([], list) and not isinstance([], list) and [] == []) | Expected: (not isinstance([], list) and not isinstance([], list) and [] == [])
+
+-----------------------------------------------------------
+----------------------- TEST IF ---------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles if with true condition | Actual: ("a" if "T" != [] and (type("T") != bool or "T") else "b") | Expected: ("a" if "T" != [] and (type("T") != bool or "T") else "b")
+
+✅ PASS 	Transpiles if with nil condition | Actual: ("a" if [] != [] and (type([]) != bool or []) else "b") | Expected: ("a" if [] != [] and (type([]) != bool or []) else "b")
+
+✅ PASS 	Transpiles if with zero condition | Actual: ("a" if 0 != [] and (type(0) != bool or 0) else "b") | Expected: ("a" if 0 != [] and (type(0) != bool or 0) else "b")
+
+✅ PASS 	Transpiles if with list condition | Actual: (1 if ["a"] != [] and (type(["a"]) != bool or ["a"]) else 2) | Expected: (1 if ["a"] != [] and (type(["a"]) != bool or ["a"]) else 2)
+
+-----------------------------------------------------------
+---------------------- TEST COND --------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles cond with true first condition | Actual: ("yes" if "T" != [] and (type("T") != bool or "T") else ("no" if "T" != [] and (type("T") != bool or "T") else False)) | Expected: ("yes" if "T" != [] and (type("T") != bool or "T") else ("no" if "T" != [] and (type("T") != bool or "T") else False))
+
+✅ PASS 	Transpiles cond with nil first condition | Actual: ("first" if [] != [] and (type([]) != bool or []) else ("second" if "T" != [] and (type("T") != bool or "T") else False)) | Expected: ("first" if [] != [] and (type([]) != bool or []) else ("second" if "T" != [] and (type("T") != bool or "T") else False))
+
+✅ PASS 	Transpiles cond with multiple conditions | Actual: ("negative" if (x < 0) != [] and (type((x < 0)) != bool or (x < 0)) else ("zero" if (not isinstance(x, list) and not isinstance(0, list) and x == 0) != [] and (type((not isinstance(x, list) and not isinstance(0, list) and x == 0)) != bool or (not isinstance(x, list) and not isinstance(0, list) and x == 0)) else ("positive" if "T" != [] and (type("T") != bool or "T") else False))) | Expected: ("negative" if (x < 0) != [] and (type((x < 0)) != bool or (x < 0)) else ("zero" if (not isinstance(x, list) and not isinstance(0, list) and x == 0) != [] and (type((not isinstance(x, list) and not isinstance(0, list) and x == 0)) != bool or (not isinstance(x, list) and not isinstance(0, list) and x == 0)) else ("positive" if "T" != [] and (type("T") != bool or "T") else False)))
+
+✅ PASS 	Transpiles cond with predicates | Actual: ("number" if (type(x) == int) != [] and (type((type(x) == int)) != bool or (type(x) == int)) else ("atom" if (not isinstance(x, list)) != [] and (type((not isinstance(x, list))) != bool or (not isinstance(x, list))) else ("other" if "T" != [] and (type("T") != bool or "T") else False))) | Expected: ("number" if (type(x) == int) != [] and (type((type(x) == int)) != bool or (type(x) == int)) else ("atom" if (not isinstance(x, list)) != [] and (type((not isinstance(x, list))) != bool or (not isinstance(x, list))) else ("other" if "T" != [] and (type("T") != bool or "T") else False)))
+
+✅ PASS 	Transpiles cond with no true condition | Actual: ("no" if [] != [] and (type([]) != bool or []) else False) | Expected: ("no" if [] != [] and (type([]) != bool or []) else False)
+
+✅ PASS 	Transpiles cond with zero as true condition | Actual: ("zero" if 0 != [] and (type(0) != bool or 0) else ("other" if "T" != [] and (type("T") != bool or "T") else False)) | Expected: ("zero" if 0 != [] and (type(0) != bool or 0) else ("other" if "T" != [] and (type("T") != bool or "T") else False))
+
+-----------------------------------------------------------
+----------------------- TEST SET --------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles set with number | Actual: x = 5 | Expected: x = 5
+
+✅ PASS 	Transpiles set with quoted atom | Actual: name = "a" | Expected: name = "a"
+
+✅ PASS 	Transpiles set with quoted list | Actual: values = [1, 2, 3] | Expected: values = [1, 2, 3]
+
+✅ PASS 	Transpiles set with expression | Actual: x = (2 + 3) | Expected: x = (2 + 3)
+
+-----------------------------------------------------------
+----------------------- TEST LT ---------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles lt with smaller first value | Actual: (2 < 5) | Expected: (2 < 5)
+
+✅ PASS 	Transpiles lt with larger first value | Actual: (5 < 2) | Expected: (5 < 2)
+
+✅ PASS 	Transpiles lt with negative number | Actual: (-5 < 2) | Expected: (-5 < 2)
+
+✅ PASS 	Transpiles lt with expression | Actual: ((1 + 2) < 5) | Expected: ((1 + 2) < 5)
+
+-----------------------------------------------------------
+----------------------- TEST DEF --------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles function definition
+                Actual:    | def square(x):
+                           |     return (x * x)
+                Expected:  | def square(x):
+                           |     return (x * x)
+
+✅ PASS 	Transpiles function with multiple parameters
+                Actual:    | def addTwo(x, y):
+                           |     return (x + y)
+                Expected:  | def addTwo(x, y):
+                           |     return (x + y)
+
+✅ PASS 	Transpiles function with predicate body
+                Actual:    | def isZero(x):
+                           |     return (not isinstance(x, list) and not isinstance(0, list) and x == 0)
+                Expected:  | def isZero(x):
+                           |     return (not isinstance(x, list) and not isinstance(0, list) and x == 0)
+
+-----------------------------------------------------------
+----------------- TEST FUNCTION CALL ----------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles function call | Actual: square(5) | Expected: square(5)
+
+✅ PASS 	Transpiles function call with multiple arguments | Actual: addTwo(2, 3) | Expected: addTwo(2, 3)
+
+✅ PASS 	Transpiles function call with expression argument | Actual: square((2 + 3)) | Expected: square((2 + 3))
+
+✅ PASS 	Transpiles function call with quoted arguments | Actual: foo("a", ["b", "c"]) | Expected: foo("a", ["b", "c"])
+
+-----------------------------------------------------------
+-------------------- TEST FUNCTION ------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles function with one parameter | Actual: lambda x: (x + 1) | Expected: lambda x: (x + 1)
+
+✅ PASS 	Transpiles function with multiple parameters | Actual: lambda x, y: (x * y) | Expected: lambda x, y: (x * y)
+
+✅ PASS 	Transpiles function assigned with set | Actual: increment = lambda x: (x + 1) | Expected: increment = lambda x: (x + 1)
+
+✅ PASS 	direct anonymous function call | Actual: (lambda x: (x + 1))(5) | Expected: (lambda x: (x + 1))(5)
+
+-----------------------------------------------------------
+------------------------ TEST PRINT -----------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles print with function call | Actual: print(square(5)) | Expected: print(square(5))
+
+✅ PASS 	Transpiles print with expression | Actual: print((10 + 20)) | Expected: print((10 + 20))
+
+✅ PASS 	Transpiles print with quoted symbol | Actual: print("hello") | Expected: print("hello")
+
+-----------------------------------------------------------
+---------------- TEST TRANSPILE FILE ----------------------
+-----------------------------------------------------------
+
+✅ PASS 	Transpiles Lisp file to Python file
+                Actual:    | def square(x):
+                           |     return (x * x)
+                           | 
+                           | x = 5
+                           | 
+                           | square(x)
+                           | 
+
+                Expected:  | def square(x):
+                           |     return (x * x)
+                           | 
+                           | x = 5
+                           | 
+                           | square(x)
+                           | 
+
+
+✅ PASS 	Transpiles multiple expressions in file
+                Actual:    | (2 + 3)
+                           | 
+                           | ("yes" if "T" != [] and (type("T") != bool or "T") else "no")
+                           | 
+                           | (type(5) == int)
+                           | 
+
+                Expected:  | (2 + 3)
+                           | 
+                           | ("yes" if "T" != [] and (type("T") != bool or "T") else "no")
+                           | 
+                           | (type(5) == int)
+                           | 
+
+
+✅ PASS 	Transpiles definitions and assignments
+                Actual:    | x = 5
+                           | 
+                           | y = 10
+                           | 
+                           | def addTwo(a, b):
+                           |     return (a + b)
+                           | 
+
+                Expected:  | x = 5
+                           | 
+                           | y = 10
+                           | 
+                           | def addTwo(a, b):
+                           |     return (a + b)
+                           | 
+
+
+✅ PASS 	Transpiles basic values from file
+                Actual:    | 42
+                           | 
+                           | []
+                           | 
+
+                Expected:  | 42
+                           | 
+                           | []
+                           | 
+
+
+✅ PASS 	Returns false when input file does not exist | Actual: false | Expected: false
+
+-----------------------------------------------------------
+--------------- TEST EXECUTE PYTHON FILE -----------------
+-----------------------------------------------------------
+
+✅ PASS 	Executes Python file successfully | Actual: 0 | Expected: 0
+
+✅ PASS 	Writes Python output to result file: print(2 + 3)
+                Actual:    | 5
+
+                Expected:  | 5
+
+
+-----------------------------------------------------------
+---------------- TEST FULL PROGRAM ------------------------
+-----------------------------------------------------------
+
+✅ PASS 	Executes transpiled program successfully | Actual: 0 | Expected: 0
+
+✅ PASS 	Produces correct transpiled program output
+                Actual:    | 25
+                           | 35
+
+                Expected:  | 25
+                           | 35
+
+
+===========================================================
+                        TEST REPORT                        
+===========================================================
+✅ Passed: 106
+❌ Failed: 0
+Total:  106
